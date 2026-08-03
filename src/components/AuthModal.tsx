@@ -24,6 +24,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const handleDirectLogin = async (sampleRole: 'admin' | 'teacher' | 'student') => {
+    setError(null);
+    setLoading(true);
+    let sampleEmail = 'admin@lms.edu.vn';
+    let samplePassword = 'admin123';
+
+    if (sampleRole === 'teacher') {
+      sampleEmail = 'teacher.hung@lms.edu.vn';
+      samplePassword = 'teacher123';
+    } else if (sampleRole === 'student') {
+      sampleEmail = 'student.nam@lms.edu.vn';
+      samplePassword = 'student123';
+    }
+
+    try {
+      const data = await safeFetchJson('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: sampleEmail, password: samplePassword }),
+      });
+
+      localStorage.setItem('lms_token', data.token);
+      onLoginSuccess(data.user, data.token);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Lỗi đăng nhập nhanh');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,6 +232,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
         </form>
+
+        {/* Quick 1-click login section */}
+        {mode === 'login' && (
+          <div className="mt-5 pt-4 border-t border-zinc-200 space-y-2">
+            <div className="text-[11px] font-bold font-mono text-zinc-600 text-center uppercase tracking-wider">
+              ⚡ Đăng Nhập Nhanh 1-Click:
+            </div>
+            <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleDirectLogin('admin')}
+                className="px-2 py-2 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold rounded text-center transition"
+              >
+                Admin
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleDirectLogin('teacher')}
+                className="px-2 py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold rounded text-center transition"
+              >
+                Giáo Viên
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleDirectLogin('student')}
+                className="px-2 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold rounded text-center transition"
+              >
+                Học Sinh
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

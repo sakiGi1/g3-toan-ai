@@ -44,6 +44,36 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, classes })
     }
   };
 
+  const handleDirectLogin = async (sampleRole: 'admin' | 'teacher' | 'student') => {
+    setError(null);
+    setLoading(true);
+    let sampleEmail = 'admin@lms.edu.vn';
+    let samplePassword = 'admin123';
+
+    if (sampleRole === 'teacher') {
+      sampleEmail = 'teacher.hung@lms.edu.vn';
+      samplePassword = 'teacher123';
+    } else if (sampleRole === 'student') {
+      sampleEmail = 'student.nam@lms.edu.vn';
+      samplePassword = 'student123';
+    }
+
+    try {
+      const data = await safeFetchJson('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: sampleEmail, password: samplePassword }),
+      });
+
+      localStorage.setItem('lms_token', data.token);
+      onLoginSuccess(data.user, data.token);
+    } catch (err: any) {
+      setError(err.message || 'Lỗi đăng nhập nhanh');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fillSampleCredentials = (sampleRole: 'admin' | 'teacher' | 'student') => {
     setMode('login');
     setError(null);
@@ -208,33 +238,65 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, classes })
         </button>
       </form>
 
-      {/* Helper preset buttons to fill form fields for convenience */}
+      {/* Fast 1-click login options */}
       {mode === 'login' && (
-        <div className="pt-4 border-t border-zinc-200 text-center space-y-2">
-          <div className="text-[11px] font-mono text-zinc-500">
-            Điền nhanh thông tin tài khoản mẫu:
+        <div className="pt-4 border-t border-zinc-200 space-y-3">
+          <div className="text-xs font-bold font-mono text-zinc-700 text-center">
+            ⚡ ĐĂNG NHẬP NHANH 1-CLICK TRÊN VERCEL / DEMO:
+          </div>
+          <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleDirectLogin('admin')}
+              className="px-2 py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 font-bold rounded text-center transition flex flex-col items-center gap-0.5"
+            >
+              <span>🔑 Admin</span>
+              <span className="text-[10px] text-purple-600 font-normal">Quản trị</span>
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleDirectLogin('teacher')}
+              className="px-2 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 font-bold rounded text-center transition flex flex-col items-center gap-0.5"
+            >
+              <span>👨‍🏫 Giáo viên</span>
+              <span className="text-[10px] text-blue-600 font-normal">Thầy Hùng</span>
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleDirectLogin('student')}
+              className="px-2 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold rounded text-center transition flex flex-col items-center gap-0.5"
+            >
+              <span>🎓 Học sinh</span>
+              <span className="text-[10px] text-emerald-600 font-normal">Trần Nam</span>
+            </button>
+          </div>
+          <div className="text-[11px] text-zinc-500 font-mono text-center">
+            (Hoặc click chọn tài khoản để tự động điền form ở trên)
           </div>
           <div className="flex justify-center gap-2 font-mono text-[11px]">
             <button
               type="button"
               onClick={() => fillSampleCredentials('admin')}
-              className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 rounded"
+              className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 rounded"
             >
-              [Admin]
+              Điền Admin
             </button>
             <button
               type="button"
               onClick={() => fillSampleCredentials('teacher')}
-              className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 rounded"
+              className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 rounded"
             >
-              [Giáo Viên]
+              Điền Giáo viên
             </button>
             <button
               type="button"
               onClick={() => fillSampleCredentials('student')}
-              className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 rounded"
+              className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 rounded"
             >
-              [Học Sinh]
+              Điền Học sinh
             </button>
           </div>
         </div>
