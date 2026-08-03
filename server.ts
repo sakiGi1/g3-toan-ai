@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { db, UserData, StudentData, LessonData, ClassData, EvidenceData, ProgressData } from './src/lib/store';
-import { signToken, verifyToken, TokenPayload } from './src/lib/auth';
-import { askSocraticTutor } from './src/lib/gemini';
-import { uploadToCloudinary } from './src/lib/cloudinary';
+import { db, UserData, StudentData, LessonData, ClassData, EvidenceData, ProgressData } from './src/lib/store.js';
+import { signToken, verifyToken, TokenPayload } from './src/lib/auth.js';
+import { askSocraticTutor } from './src/lib/gemini.js';
+import { uploadToCloudinary } from './src/lib/cloudinary.js';
 
 const getDirname = () => {
   if (typeof import.meta !== 'undefined' && import.meta?.url) {
