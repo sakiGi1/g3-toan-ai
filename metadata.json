@@ -1,0 +1,6 @@
+{
+  "name": "Hệ Thống Quản Lý Học Tập & Trợ Lý AI Socratic",
+  "description": "Nền tảng quản lý học tập thông minh tích hợp AI Socratic, quản lý lớp học, bài học, tiến độ và minh chứng cho Admin, Giáo viên và Học sinh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

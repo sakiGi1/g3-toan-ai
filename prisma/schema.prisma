@@ -1,0 +1,93 @@
+// Prisma Schema for LMS with Socratic AI Tutor
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  teacher
+  student
+}
+
+enum Level {
+  GIOI        @map("Giỏi")
+  KHA         @map("Khá")
+  TRUNG_BINH  @map("Trung bình")
+  YEU         @map("Yếu")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(student)
+  createdAt DateTime @default(now())
+
+  // Relations
+  taughtClasses Class[]   @relation("TeacherClasses")
+  studentProfile Student?
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String
+  teacherId String?
+  teacher   User?    @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: SetNull)
+  students  Student[]
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classId   String?
+  class     Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
+  level     String   @default("Khá") // Giỏi, Khá, Trung bình, Yếu
+
+  chatHistories ChatHistory[]
+  evidences     Evidence[]
+  progresses    Progress[]
+}
+
+model Lesson {
+  id        String     @id @default(uuid())
+  title     String
+  content   String     @db.Text
+  progresses Progress[]
+}
+
+model ChatHistory {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question  String   @db.Text
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Evidence {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title     String
+  fileUrl   String
+  fileType  String
+  createdAt DateTime @default(now())
+}
+
+model Progress {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status    String   @default("Chưa học") // Chưa học, Đang học, Hoàn thành
+  score     Float?
+}
